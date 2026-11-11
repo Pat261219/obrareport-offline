@@ -606,12 +606,11 @@ function exportarPdf() {
         window.print();
     }
 </script>
-    <style>
+<style>
 @media print {
-  /* Oculta botones, menús, campos, formularios y las tarjetas contenedoras de la interfaz */
-  button, input, select, nav, header, form, fieldset, section, .card, .no-print {
+  /* Oculta todos los elementos de la interfaz de usuario, formularios y contenedores de edición */
+  button, input, select, nav, header, form, fieldset, section, .card, .container, main, .no-print {
     display: none !important;
   }
 }
 </style>
-
