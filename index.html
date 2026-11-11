@@ -609,11 +609,9 @@ function exportarPdf() {
 
 <style>
 @media print {
-  button, input, select, nav, header, .no-print {
+  /* Oculta botones, menús, formularios y TODAS las tablas al imprimir */
+  button, input, select, nav, header, table, .no-print {
     display: none !important;
   }
 }
 </style>
-
-</body>
-</html>
