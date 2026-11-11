@@ -608,17 +608,28 @@ function exportarPdf() {
 </script>
 <style>
 @media print {
-  /* Ocultamos elementos de control y contenedores de formularios para dejar solo los datos */
-  button, nav, header, footer, .btn, .button, [onclick], label {
+  /* Ocultamos la cabecera superior de la página, botones y elementos de interfaz */
+  header, nav, button, .no-print, [title*="GPS"], [onclick*="gps"] {
     display: none !important;
   }
-  
-  /* Quitamos bordes y fondos de cualquier caja para que quede como un informe limpio */
+
+  /* Ocultamos los bordes, fondos y sombras de las tarjetas para que no parezcan formularios */
+  .card, .container, section, div {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  /* Transformamos los campos de texto y desplegables en texto plano impreso */
   input, select, textarea {
     border: none !important;
     background: transparent !important;
     outline: none !important;
     box-shadow: none !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    padding: 0 !important;
+    color: #000 !important;
   }
 }
 </style>
