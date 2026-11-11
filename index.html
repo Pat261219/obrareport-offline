@@ -5,39 +5,47 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Informe de Visita - PWA</title>
   <style>
+    /* --- ESTILOS GENERALES --- */
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
     body { background-color: #f4f4f4; padding: 20px; }
     .informe-container { max-width: 800px; margin: 0 auto; background-color: #ffffff; border: 1px solid #15324b; padding: 20px; }
     
+    /* --- TÍTULOS Y SECCIONES --- */
     .seccion-titulo { background-color: #15324b; color: white; padding: 6px 10px; font-weight: bold; font-size: 13px; margin-top: 15px; }
-    .seccion-contenido { border: 1px solid #15324b; border-top: none; padding: 10px 15px; margin-bottom: 15px; background-color: #fff; }
-    
-    .fila-opcion { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #eee; font-size: 12px; font-weight: bold; color: #333; }
-    
-    .tabla-seguimiento { width: 100%; border-collapse: collapse; margin-top: 5px; }
-    .tabla-seguimiento th, .tabla-seguimiento td { border: 1px solid #15324b; padding: 8px; text-align: left; font-size: 11px; }
-    .tabla-seguimiento th { background-color: #e6ebf0; color: #15324b; }
-    .celda-centro { text-align: center !important; font-weight: bold; }
 
-    /* SECCIÓN DE FOTOS (Cuadrícula adaptable que imprime perfecto) */
-    .seccion-fotos { margin-top: 15px; page-break-inside: avoid; }
-    .grid-fotos { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 10px; border: 1px solid #15324b; border-top: none; background-color: #fff; }
-    .tarjeta-foto { border: 1px solid #15324b; padding: 8px; text-align: center; background-color: #fff; page-break-inside: avoid; }
-    .tarjeta-foto img { width: 100%; height: 160px; object-fit: cover; border: 1px solid #ddd; margin-bottom: 5px; }
+    /* --- CUADRÍCULA DE FOTOS --- */
+    .grid-fotos { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 10px; border: 1px solid #15324b; border-top: none; background-color: #fff; margin-bottom: 15px; }
+    .tarjeta-foto { border: 1px solid #15324b; padding: 8px; text-align: center; background-color: #fff; page-break-inside: avoid; break-inside: avoid; }
+    .tarjeta-foto img { width: 100%; height: 160px; object-fit: cover; border: 1px solid #ddd; margin-bottom: 5px; display: block; }
     .pie-foto { font-size: 10px; color: #15324b; font-weight: bold; }
 
-    /* APARTADO DE FIRMAS EN 3 COLUMNAS HORIZONTALES */
-    .seccion-firmas { margin-top: 15px; page-break-inside: avoid; }
+    /* --- APARTADO DE FIRMAS EN 3 COLUMNAS HORIZONTALES --- */
+    .seccion-firmas { margin-top: 15px; page-break-inside: avoid; break-inside: avoid; }
     .firmas-container { display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; padding: 15px 10px; border: 1px solid #15324b; border-top: none; background-color: #fff; }
-    .firma-box { flex: 1; text-align: center; padding: 5px; }
-    .firma-box img { max-height: 60px; width: auto; max-width: 100%; object-fit: contain; margin-bottom: 5px; }
+    .firma-box { flex: 1; text-align: center; padding: 5px; page-break-inside: avoid; break-inside: avoid; }
+    .firma-box img { max-height: 60px; width: auto; max-width: 100%; object-fit: contain; margin-bottom: 5px; display: block; margin-left: auto; margin-right: auto; }
     .firma-titulo { font-size: 10px; font-weight: bold; color: #15324b; border-top: 1px solid #15324b; padding-top: 5px; margin-top: 5px; line-height: 1.2; }
 
-    /* REGLAS ESTRICTAS DE IMPRESIÓN Y PDF */
+    /* --- REGLAS DE IMPRESIÓN Y PDF (Garantizan que las fotos y firmas salgan siempre) --- */
     @media print {
-      body { background-color: #fff; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      body {
+        background-color: #fff;
+        padding: 0;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
       .informe-container { border: none; padding: 0; }
-      .tarjeta-foto, .seccion-fotos, .seccion-firmas { page-break-inside: avoid; break-inside: avoid; }
+      img {
+        max-width: 100% !important;
+        height: auto !important;
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+      .tarjeta-foto, .firma-box, .seccion-fotos, .seccion-firmas {
+        page-break-inside: avoid;
+        break-inside: avoid;
+        border: 1px solid #15324b !important;
+      }
     }
   </style>
 </head>
@@ -45,78 +53,23 @@
 
 <div class="informe-container">
 
-  <!-- CABECERA -->
+  <!-- CABECERA PRINCIPAL -->
   <div style="text-align: center; background-color: #15324b; color: white; padding: 10px; font-size: 16px; font-weight: bold;">
     ACTUACIONES Y RESULTADOS
   </div>
 
-  <!-- ACTUACIONES DERIVADAS -->
-  <div class="seccion-titulo">ACTUACIONES DERIVADAS</div>
-  <div class="seccion-contenido">
-    <div class="fila-opcion">
-      <span>FORMULACIÓN DE REQUERIMIENTOS</span>
-      <div id="op-requerimientos"><span>SÍ [  ]</span> <span>NO [X]</span></div>
+  <!-- REGISTRO FOTOGRÁFICO -->
+  <div class="seccion-titulo">REGISTRO FOTOGRÁFICO</div>
+  <div class="grid-fotos" id="contenedor-fotos">
+    <!-- Foto 1 -->
+    <div class="tarjeta-foto">
+      <img src="ruta_o_base64_foto1.jpg" alt="Foto 1" onerror="this.parentElement.style.display='none'" />
+      <div class="pie-foto">Foto 1: Detalle de deficiencia</div>
     </div>
-    <div class="fila-opcion">
-      <span>PROPUESTA DE MEDIDAS CORRECTORAS</span>
-      <div id="op-medidas"><span>SÍ [  ]</span> <span>NO [X]</span></div>
-    </div>
-    <div class="fila-opcion">
-      <span>PARALIZACIÓN DE ACTIVIDADES</span>
-      <div id="op-paralizacion"><span>SÍ [  ]</span> <span>NO [X]</span></div>
-    </div>
-  </div>
-
-  <!-- DEFICIENCIAS DETECTADAS -->
-  <div class="seccion-titulo">DEFICIENCIAS DETECTADAS</div>
-  <div class="seccion-contenido" id="txt-deficiencias" style="min-height: 60px;"></div>
-
-  <!-- MEDIDAS CORRECTORAS -->
-  <div class="seccion-titulo">MEDIDAS CORRECTORAS</div>
-  <div class="seccion-contenido" id="txt-medidas" style="min-height: 60px;"></div>
-
-  <!-- SEGUIMIENTO ACCIONES CORRECTORAS -->
-  <div class="seccion-titulo">SEGUIMIENTO ACCIONES CORRECTORAS</div>
-  <div class="seccion-contenido" style="padding: 0; border: none;">
-    <table class="tabla-seguimiento">
-      <thead>
-        <tr>
-          <th style="width: 20%;">Nº Medidas correctoras</th>
-          <th style="width: 40%;">Responsable de ejecución</th>
-          <th style="width: 20%;">Plazo ejecución</th>
-          <th style="width: 20%;">Fecha cierre / Firma</th>
-        </tr>
-      </thead>
-      <tbody id="tabla-seguimiento-body"></tbody>
-    </table>
-  </div>
-
-  <!-- REGISTRO FOTOGRÁFICO (Imprime fotos sin fallos) -->
-  <div class="seccion-fotos">
-    <div class="seccion-titulo" style="margin-top: 0;">REGISTRO FOTOGRÁFICO</div>
-    <div class="grid-fotos" id="contenedor-fotos">
-      <!-- Se inyectan las fotos dinámicamente o puedes ponerlas fijas -->
-      <div class="tarjeta-foto">
-        <img src="" alt="Foto 1" onerror="this.parentElement.style.display='none'" />
-        <div class="pie-foto">Foto 1: Detalle de deficiencia</div>
-      </div>
-      <div class="tarjeta-foto">
-        <img src="" alt="Foto 2" onerror="this.parentElement.style.display='none'" />
-        <div class="pie-foto">Foto 2: Medida correctora aplicada</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ACTUACIONES PROPUESTAS -->
-  <div class="seccion-titulo">ACTUACIONES PROPUESTAS</div>
-  <div class="seccion-contenido">
-    <div class="fila-opcion">
-      <span>Nueva visita</span>
-      <div id="op-nuevavisita"><span>SÍ [  ]</span> <span>NO [X]</span></div>
-    </div>
-    <div class="fila-opcion">
-      <span>Verificación del cumplimiento</span>
-      <div id="op-verificacion"><span>SÍ [  ]</span> <span>NO [X]</span></div>
+    <!-- Foto 2 -->
+    <div class="tarjeta-foto">
+      <img src="ruta_o_base64_foto2.jpg" alt="Foto 2" onerror="this.parentElement.style.display='none'" />
+      <div class="pie-foto">Foto 2: Medida correctora aplicada</div>
     </div>
   </div>
 
@@ -125,21 +78,21 @@
     <div class="seccion-titulo" style="margin-top: 0;">VISITA REALIZADA POR:</div>
     <div class="firmas-container">
       
-      <!-- Firma 1 -->
+      <!-- Firma 1: Técnico PRL -->
       <div class="firma-box">
-        <img id="img-firma-tecnico" src="" alt="Firma Técnico PRL" onerror="this.style.display='none'" />
+        <img id="img-firma-tecnico" src="ruta_firma_tecnico.png" alt="Firma Técnico PRL" onerror="this.style.display='none'" />
         <div class="firma-titulo">Fdo.: Estévez<br>Técnico PRL (UTE 3)</div>
       </div>
 
-      <!-- Firma 2 -->
+      <!-- Firma 2: Jefe de Obra -->
       <div class="firma-box">
-        <img id="img-firma-jefe" src="" alt="Firma Jefe de Obra" onerror="this.style.display='none'" />
+        <img id="img-firma-jefe" src="ruta_firma_jefe.png" alt="Firma Jefe de Obra" onerror="this.style.display='none'" />
         <div class="firma-titulo">Fdo.: Fernando Gutierrez Lera<br>Jefe de obra</div>
       </div>
 
-      <!-- Firma 3 -->
+      <!-- Firma 3: Técnico de Obra -->
       <div class="firma-box">
-        <img id="img-firma-auxiliar" src="" alt="Firma Técnico de Obra" onerror="this.style.display='none'" />
+        <img id="img-firma-auxiliar" src="ruta_firma_auxiliar.png" alt="Firma Técnico de Obra" onerror="this.style.display='none'" />
         <div class="firma-titulo">Fdo.: [Nombre Apellidos]<br>Técnico de obra</div>
       </div>
 
