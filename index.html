@@ -658,24 +658,95 @@ function exportarPdf() {
       grid-template-columns: repeat(2, 1fr);
     }
   }
+<style>
+  .seccion-firmas {
+    margin-top: 25px;
+    page-break-inside: avoid;
+  }
+  .firmas-titulo {
+    background-color: #15324b;
+    color: white;
+    padding: 6px 10px;
+    font-weight: bold;
+    font-size: 13px;
+  }
+  .firmas-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 10px;
+    padding: 15px 10px;
+    border: 1px solid #15324b;
+    border-top: none; /* Se une visualmente con el título */
+    background-color: #fff;
+    page-break-inside: avoid;
+  }
+  .firma-box {
+    flex: 1; /* Distribuye el espacio en 3 partes iguales */
+    text-align: center;
+    padding: 5px;
+  }
+  .firma-box img {
+    max-height: 65px;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+    margin-bottom: 5px;
+  }
+  .firma-linea-sello {
+    /* Espacio reservado por si se firma físicamente o con canvas en blanco */
+    min-height: 45px; 
+    margin-bottom: 5px;
+  }
+  .firma-titulo {
+    font-size: 10px;
+    font-weight: bold;
+    color: #15324b;
+    border-top: 1px solid #15324b;
+    padding-top: 5px;
+    margin-top: 5px;
+    line-height: 1.2;
+  }
+  @media print {
+    body {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .firmas-container, .firmas-titulo {
+      border-color: #15324b !important;
+    }
+  }
 </style>
 
-<div class="seccion-fotos">
-  <div class="fotos-titulo">
-    REGISTRO FOTOGRÁFICO / ANEXO DE DEFICIENCIAS
+<div class="seccion-firmas">
+  <div class="firmas-titulo">
+    VISITA REALIZADA POR:
   </div>
   
-  <div class="grid-fotos">
-    <!-- Foto 1 -->
-    <div class="tarjeta-foto">
-      <img src="ruta_o_base64_foto1.jpg" alt="Deficiencia detectada 1" />
-      <div class="pie-foto">Foto 1: Detalle de deficiencia / actuación</div>
+  <div class="firmas-container">
+    <!-- Columna 1: Técnico PRL -->
+    <div class="firma-box">
+      <!-- Si hay imagen guardada se muestra, si no, deja hueco -->
+      <img src="ruta_firma_tecnico.png" alt="Firma Técnico PRL" />
+      <div class="firma-titulo">
+        Fdo.: Estévez<br>Técnico PRL (UTE 3)
+      </div>
     </div>
 
-    <!-- Foto 2 -->
-    <div class="tarjeta-foto">
-      <img src="ruta_o_base64_foto2.jpg" alt="Deficiencia detectada 2" />
-      <div class="pie-foto">Foto 2: Detalle de deficiencia / actuación</div>
+    <!-- Columna 2: Jefe de Obra -->
+    <div class="firma-box">
+      <img src="ruta_firma_jefe.png" alt="Firma Jefe de obra" />
+      <div class="firma-titulo">
+        Fdo.: Fernando Gutierrez Lera<br>Jefe de obra
+      </div>
+    </div>
+
+    <!-- Columna 3: Técnico de Obra / Ayudante -->
+    <div class="firma-box">
+      <img src="ruta_firma_auxiliar.png" alt="Firma Técnico de obra" />
+      <div class="firma-titulo">
+        Fdo.: [Nombre Apellidos]<br>Técnico de obra
+      </div>
     </div>
   </div>
 </div>
