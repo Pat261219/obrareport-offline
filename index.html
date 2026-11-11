@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -601,5 +602,18 @@
             window.print();
         }
     </script>
+function exportarPdf() {
+        window.print();
+    }
+</script>
+
+<style>
+@media print {
+  button, input, select, nav, header, .no-print {
+    display: none !important;
+  }
+}
+</style>
+
 </body>
 </html>
