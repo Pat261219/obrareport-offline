@@ -1,752 +1,152 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OBRAREPORT - Sistema de Control y Prevención de Riesgos Laborales</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        corporate: {
-                            DEFAULT: '#15324b',
-                            dark: '#0e2233',
-                            light: '#1d4464'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Informe de Visita - PWA</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+    body { background-color: #f4f4f4; padding: 20px; }
+    .informe-container { max-width: 800px; margin: 0 auto; background-color: #ffffff; border: 1px solid #15324b; padding: 20px; }
+    
+    .seccion-titulo { background-color: #15324b; color: white; padding: 6px 10px; font-weight: bold; font-size: 13px; margin-top: 15px; }
+    .seccion-contenido { border: 1px solid #15324b; border-top: none; padding: 10px 15px; margin-bottom: 15px; background-color: #fff; }
+    
+    .fila-opcion { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #eee; font-size: 12px; font-weight: bold; color: #333; }
+    
+    .tabla-seguimiento { width: 100%; border-collapse: collapse; margin-top: 5px; }
+    .tabla-seguimiento th, .tabla-seguimiento td { border: 1px solid #15324b; padding: 8px; text-align: left; font-size: 11px; }
+    .tabla-seguimiento th { background-color: #e6ebf0; color: #15324b; }
+    .celda-centro { text-align: center !important; font-weight: bold; }
+
+    /* SECCIÓN DE FOTOS (Cuadrícula adaptable que imprime perfecto) */
+    .seccion-fotos { margin-top: 15px; page-break-inside: avoid; }
+    .grid-fotos { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 10px; border: 1px solid #15324b; border-top: none; background-color: #fff; }
+    .tarjeta-foto { border: 1px solid #15324b; padding: 8px; text-align: center; background-color: #fff; page-break-inside: avoid; }
+    .tarjeta-foto img { width: 100%; height: 160px; object-fit: cover; border: 1px solid #ddd; margin-bottom: 5px; }
+    .pie-foto { font-size: 10px; color: #15324b; font-weight: bold; }
+
+    /* APARTADO DE FIRMAS EN 3 COLUMNAS HORIZONTALES */
+    .seccion-firmas { margin-top: 15px; page-break-inside: avoid; }
+    .firmas-container { display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; padding: 15px 10px; border: 1px solid #15324b; border-top: none; background-color: #fff; }
+    .firma-box { flex: 1; text-align: center; padding: 5px; }
+    .firma-box img { max-height: 60px; width: auto; max-width: 100%; object-fit: contain; margin-bottom: 5px; }
+    .firma-titulo { font-size: 10px; font-weight: bold; color: #15324b; border-top: 1px solid #15324b; padding-top: 5px; margin-top: 5px; line-height: 1.2; }
+
+    /* REGLAS ESTRICTAS DE IMPRESIÓN Y PDF */
+    @media print {
+      body { background-color: #fff; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .informe-container { border: none; padding: 0; }
+      .tarjeta-foto, .seccion-fotos, .seccion-firmas { page-break-inside: avoid; break-inside: avoid; }
+    }
+  </style>
 </head>
-<body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen pb-16">
+<body>
 
-    <!-- Header / Cabecera -->
-    <header class="bg-corporate text-white shadow-md sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-4">
-            <div class="flex items-center space-x-3">
-                <div class="bg-white p-2 rounded-lg text-emerald-600 font-black text-xl flex items-center justify-center shadow">
-                    🛡️
-                </div>
-                <div>
-                    <div class="flex items-center gap-2">
-                        <h1 class="text-lg font-bold tracking-tight">OBRAREPORT</h1>
-                        <span class="bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase">Grupo TRAGSA</span>
-                    </div>
-                    <p class="text-xs text-slate-300">Sistema de Control y Prevención de Riesgos Laborales en Obra</p>
-                </div>
-            </div>
+<div class="informe-container">
 
-            <!-- Botones de Acción Superior -->
-            <div class="flex items-center gap-2">
-                <button onclick="guardarBorrador()" class="bg-slate-700 hover:bg-slate-600 text-white text-xs font-semibold px-3 py-2 rounded-md shadow flex items-center gap-1.5 transition">
-                    💾 Guardar Borrador
-                </button>
-                <button onclick="cargarBorrador()" class="bg-slate-700 hover:bg-slate-600 text-white text-xs font-semibold px-3 py-2 rounded-md shadow flex items-center gap-1.5 transition">
-                    📂 Cargar Guardados
-                </button>
-                <button onclick="nuevoFormulario()" class="bg-rose-700 hover:bg-rose-600 text-white text-xs font-semibold px-3 py-2 rounded-md shadow flex items-center gap-1.5 transition">
-                    🔄 Nuevo
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- Contenedor Principal -->
-    <main class="max-w-7xl mx-auto px-4 py-6 space-y-6">
-        <form id="obraForm" onsubmit="event.preventDefault();" class="space-y-6">
-
-            <!-- 1. DATOS IDENTIFICATIVOS DE LA VISITA -->
-            <section class="bg-white rounded-lg shadow-sm border border-slate-200 p-5">
-                <div class="flex justify-between items-center mb-4 border-b pb-2">
-                    <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                        <span class="bg-emerald-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">1</span>
-                        Datos Identificativos de la Visita
-                    </h2>
-                    <span class="text-xs text-slate-400 font-medium">Metadatos de inspección</span>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Código de Obra *</label>
-                        <input type="text" id="codigoObra" placeholder="Ej: TRG-2026-048" class="w-full text-sm border-slate-300 rounded-md border px-3 py-2 focus:ring-emerald-500 focus:border-emerald-500" required>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Nombre de la Obra *</label>
-                        <input type="text" id="nombreObra" placeholder="Ej: Acondicionamiento Margen Fluvial" class="w-full text-sm border-slate-300 rounded-md border px-3 py-2 focus:ring-emerald-500 focus:border-emerald-500" required>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Técnico de PRL *</label>
-                        <input type="text" id="tecnicoPrl" placeholder="Nombre del Técnico" class="w-full text-sm border-slate-300 rounded-md border px-3 py-2 focus:ring-emerald-500 focus:border-emerald-500" required>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Tipo de Visita *</label>
-                        <select id="tipoVisita" class="w-full text-sm border-slate-300 rounded-md border px-3 py-2 bg-white focus:ring-emerald-500 focus:border-emerald-500">
-                            <option value="V_TPRL">Visita Ordinaria PRL</option>
-                            <option value="V_EXTRA">Visita Extraordinaria / Incidencia</option>
-                            <option value="V_INICIAL">Visita de Apertura / Inicial</option>
-                            <option value="V_FINAL">Visita de Cierre / Final</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Jefe de Obra *</label>
-                        <input type="text" id="jefeObra" placeholder="Nombre del Jefe de Obra" class="w-full text-sm border-slate-300 rounded-md border px-3 py-2 focus:ring-emerald-500 focus:border-emerald-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Objeto de la Visita</label>
-                        <input type="text" id="objetoVisita" placeholder="Ej: Inspección rutinaria trimestral" class="w-full text-sm border-slate-300 rounded-md border px-3 py-2 focus:ring-emerald-500 focus:border-emerald-500">
-                    </div>
-                    <div class="md:col-span-2">
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Lugar de la Visita y Ubicación GPS</label>
-                        <div class="flex gap-2">
-                            <input type="text" id="ubicacionGps" placeholder="Dirección / Km / Coordenadas GPS" class="w-full text-sm border-slate-300 rounded-md border px-3 py-2 focus:ring-emerald-500 focus:border-emerald-500">
-                            <button type="button" onclick="capturarGps()" class="bg-corporate hover:bg-corporate-dark text-white text-xs px-3 py-2 rounded-md font-medium whitespace-nowrap flex items-center gap-1 shadow">
-                                📍 Capturar GPS
-                            </button>
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Asistentes a la Obra</label>
-                        <input type="text" id="asistentesObra" placeholder="Nombres de asistentes" class="w-full text-sm border-slate-300 rounded-md border px-3 py-2 focus:ring-emerald-500 focus:border-emerald-500">
-                    </div>
-                </div>
-            </section>
-
-            <!-- 2. INSTALACIONES DE OBRA -->
-            <section class="bg-white rounded-lg shadow-sm border border-slate-200 p-5">
-                <div class="flex justify-between items-center mb-4 border-b pb-2">
-                    <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                        <span class="bg-emerald-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">2</span>
-                        Instalaciones de Obra
-                    </h2>
-                    <span class="text-xs text-slate-400 font-medium">Estado general de bienestar</span>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="gridInstalaciones">
-                    <!-- Generados por script -->
-                </div>
-            </section>
-
-            <!-- 3. MEDIOS DE TRABAJO -->
-            <section class="bg-white rounded-lg shadow-sm border border-slate-200 p-5">
-                <div class="flex justify-between items-center mb-4 border-b pb-2">
-                    <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                        <span class="bg-emerald-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">3</span>
-                        Medios de Trabajo
-                    </h2>
-                    <button type="button" onclick="addItem('mediosTrabajo')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-1.5 rounded-md font-medium shadow transition">
-                        + Añadir
-                    </button>
-                </div>
-                <div id="container-mediosTrabajo" class="space-y-3"></div>
-            </section>
-
-            <!-- 4. INSTALACIONES AUXILIARES -->
-            <section class="bg-white rounded-lg shadow-sm border border-slate-200 p-5">
-                <div class="flex justify-between items-center mb-4 border-b pb-2">
-                    <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                        <span class="bg-emerald-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">4</span>
-                        Instalaciones Auxiliares
-                    </h2>
-                    <button type="button" onclick="addItem('instalacionesAuxiliares')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-1.5 rounded-md font-medium shadow transition">
-                        + Añadir
-                    </button>
-                </div>
-                <div id="container-instalacionesAuxiliares" class="space-y-3"></div>
-            </section>
-
-            <!-- 5. MAQUINARIA AUXILIAR -->
-            <section class="bg-white rounded-lg shadow-sm border border-slate-200 p-5">
-                <div class="flex justify-between items-center mb-4 border-b pb-2">
-                    <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                        <span class="bg-emerald-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">5</span>
-                        Maquinaria Auxiliar
-                    </h2>
-                    <button type="button" onclick="addItem('maquinariaAuxiliar')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-1.5 rounded-md font-medium shadow transition">
-                        + Añadir
-                    </button>
-                </div>
-                <div id="container-maquinariaAuxiliar" class="space-y-3"></div>
-            </section>
-
-            <!-- 6. PEQUEÑA MAQUINARIA -->
-            <section class="bg-white rounded-lg shadow-sm border border-slate-200 p-5">
-                <div class="flex justify-between items-center mb-4 border-b pb-2">
-                    <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                        <span class="bg-emerald-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">6</span>
-                        Pequeña Maquinaria
-                    </h2>
-                    <button type="button" onclick="addItem('pequenaMaquinaria')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-1.5 rounded-md font-medium shadow transition">
-                        + Añadir
-                    </button>
-                </div>
-                <div id="container-pequenaMaquinaria" class="space-y-3"></div>
-            </section>
-
-            <!-- 7. MAQUINARIA AUTOPROPULSADA -->
-            <section class="bg-white rounded-lg shadow-sm border border-slate-200 p-5">
-                <div class="flex justify-between items-center mb-4 border-b pb-2">
-                    <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                        <span class="bg-emerald-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">7</span>
-                        Maquinaria Autopropulsada (Fichas de Inspección Individual)
-                    </h2>
-                    <button type="button" onclick="addMaquinariaAutopropulsada()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-1.5 rounded-md font-medium shadow transition flex items-center gap-1">
-                        🚜 + Añadir Máquina Autopropulsada
-                    </button>
-                </div>
-                <p class="text-xs text-slate-500 mb-4">Añada tantas fichas de máquinas como disponga la obra.</p>
-                <div id="container-autopropulsada" class="space-y-4"></div>
-            </section>
-
-            <!-- 8. COMPROBACIÓN DOCUMENTAL -->
-            <section class="bg-white rounded-lg shadow-sm border border-slate-200 p-5">
-                <div class="flex justify-between items-center mb-4 border-b pb-2">
-                    <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                        <span class="bg-emerald-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">8</span>
-                        Comprobación Documental
-                    </h2>
-                    <span class="text-xs text-slate-400 font-medium">Requisitos Legales y Normativos</span>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="gridDocumental">
-                    <!-- Generados por script -->
-                </div>
-            </section>
-
-            <!-- 9. DOCUMENTACIÓN Y FOTOGRAFÍAS ADJUNTAS -->
-            <section class="bg-white rounded-lg shadow-sm border border-slate-200 p-5">
-                <div class="flex justify-between items-center mb-4 border-b pb-2">
-                    <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                        <span class="bg-emerald-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">9</span>
-                        Documentación y Fotografías Adjuntas
-                    </h2>
-                    <span class="text-xs text-slate-400 font-medium">Archivos generales complementarios</span>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="border-2 border-dashed border-slate-300 rounded-lg p-4 text-center bg-slate-50">
-                        <label class="block text-xs font-semibold text-slate-700 mb-2">📸 Fotografías de Inspección Generales</label>
-                        <input type="file" id="fotosGenerales" multiple accept="image/*" class="text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
-                    </div>
-                    <div class="border-2 border-dashed border-slate-300 rounded-lg p-4 text-center bg-slate-50">
-                        <label class="block text-xs font-semibold text-slate-700 mb-2">📄 Documentos PDF Adjuntos</label>
-                        <input type="file" id="docsPdf" multiple accept="application/pdf" class="text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-rose-50 file:text-rose-700 hover:file:bg-rose-100">
-                    </div>
-                </div>
-            </section>
-
-            <!-- 10. ACTUACIONES Y RESULTADOS -->
-            <section class="bg-white rounded-lg shadow-sm border border-slate-200 p-5 space-y-6">
-                <div class="flex justify-between items-center border-b pb-2">
-                    <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                        <span class="bg-emerald-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">10</span>
-                        ACTUACIONES Y RESULTADOS
-                    </h2>
-                    <span class="text-xs text-slate-400 font-medium">Cierre de inspección</span>
-                </div>
-
-                <!-- Actuaciones Derivadas -->
-                <div class="bg-slate-50 p-4 rounded-md border border-slate-200 space-y-3">
-                    <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Actuaciones Derivadas</h3>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                        <div class="flex justify-between items-center bg-white p-2.5 rounded border border-slate-200">
-                            <span class="font-medium text-xs text-slate-700">FORMULACIÓN DE REQUERIMIENTOS</span>
-                            <div class="flex gap-4 text-xs font-semibold">
-                                <label class="flex items-center gap-1"><input type="radio" name="req_form" value="SI" class="text-emerald-600"> SÍ</label>
-                                <label class="flex items-center gap-1"><input type="radio" name="req_form" value="NO" checked class="text-emerald-600"> NO</label>
-                            </div>
-                        </div>
-                        <div class="flex justify-between items-center bg-white p-2.5 rounded border border-slate-200">
-                            <span class="font-medium text-xs text-slate-700">PROPUESTA DE MEDIDAS CORRECTORAS</span>
-                            <div class="flex gap-4 text-xs font-semibold">
-                                <label class="flex items-center gap-1"><input type="radio" name="req_medidas" value="SI" class="text-emerald-600"> SÍ</label>
-                                <label class="flex items-center gap-1"><input type="radio" name="req_medidas" value="NO" checked class="text-emerald-600"> NO</label>
-                            </div>
-                        </div>
-                        <div class="flex justify-between items-center bg-white p-2.5 rounded border border-slate-200 md:col-span-2">
-                            <span class="font-medium text-xs text-slate-700">PARALIZACIÓN DE ACTIVIDADES</span>
-                            <div class="flex gap-4 text-xs font-semibold">
-                                <label class="flex items-center gap-1"><input type="radio" name="req_paralizacion" value="SI" class="text-rose-600"> SÍ</label>
-                                <label class="flex items-center gap-1"><input type="radio" name="req_paralizacion" value="NO" checked class="text-emerald-600"> NO</label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Deficiencias Detectadas -->
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Deficiencias Detectadas</label>
-                    <textarea id="deficienciasDetectadas" rows="3" placeholder="Describa las deficiencias observadas durante la visita..." class="w-full text-sm border-slate-300 rounded-md border p-3 focus:ring-emerald-500 focus:border-emerald-500"></textarea>
-                </div>
-
-                <!-- Medidas Correctoras -->
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Medidas Correctoras</label>
-                    <textarea id="medidasCorrectorasTexto" rows="3" placeholder="Indique las medidas correctoras a aplicar..." class="w-full text-sm border-slate-300 rounded-md border p-3 focus:ring-emerald-500 focus:border-emerald-500"></textarea>
-                </div>
-
-                <!-- Seguimiento Acciones Correctoras -->
-                <div>
-                    <div class="flex justify-between items-center mb-2">
-                        <label class="text-xs font-bold text-slate-700 uppercase">Seguimiento Acciones Correctoras</label>
-                        <button type="button" onclick="addAccionSeguimiento()" class="bg-slate-700 hover:bg-slate-600 text-white text-xs px-2.5 py-1 rounded">+ Fila</button>
-                    </div>
-                    <div class="overflow-x-auto border border-slate-200 rounded-md">
-                        <table class="w-full text-left text-xs" id="tablaSeguimiento">
-                            <thead class="bg-slate-200 text-slate-700 uppercase font-bold">
-                                <tr>
-                                    <th class="p-2 w-20 text-center">Nº Medida</th>
-                                    <th class="p-2">Responsable de ejecución</th>
-                                    <th class="p-2 w-32">Plazo ejecución</th>
-                                    <th class="p-2 w-36">Fecha cierre / Firma</th>
-                                    <th class="p-2 w-10"></th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-200 bg-white" id="tbodySeguimiento">
-                                <!-- Filas dinámicas -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Actuaciones Propuestas -->
-                <div class="bg-slate-50 p-4 rounded-md border border-slate-200 space-y-2">
-                    <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Actuaciones Propuestas</h3>
-                    <div class="flex flex-col md:flex-row gap-6 text-xs font-semibold">
-                        <div class="flex items-center justify-between md:justify-start gap-4 bg-white p-2.5 rounded border border-slate-200 flex-1">
-                            <span>Nueva visita</span>
-                            <div class="flex gap-3">
-                                <label class="flex items-center gap-1"><input type="radio" name="prop_nuevavisita" value="SI"> SÍ</label>
-                                <label class="flex items-center gap-1"><input type="radio" name="prop_nuevavisita" value="NO" checked> NO</label>
-                            </div>
-                        </div>
-                        <div class="flex items-center justify-between md:justify-start gap-4 bg-white p-2.5 rounded border border-slate-200 flex-1">
-                            <span>Verificación del cumplimiento</span>
-                            <div class="flex gap-3">
-                                <label class="flex items-center gap-1"><input type="radio" name="prop_verificacion" value="SI"> SÍ</label>
-                                <label class="flex items-center gap-1"><input type="radio" name="prop_verificacion" value="NO" checked> NO</label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Visita Realizada Por (Firmas) -->
-                <div class="pt-4 border-t border-slate-200">
-                    <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-4">Visita Realizada por:</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-                        <div class="border border-dashed border-slate-300 p-4 rounded-lg bg-slate-50 flex flex-col justify-between h-36">
-                            <span class="text-xs font-semibold text-slate-500">Fdo. Técnico PRL</span>
-                            <input type="text" id="firmaTecnicoPrl" placeholder="Nombre / Firma" class="w-full text-xs text-center border-b border-slate-300 bg-transparent py-1">
-                        </div>
-                        <div class="border border-dashed border-slate-300 p-4 rounded-lg bg-slate-50 flex flex-col justify-between h-36">
-                            <span class="text-xs font-semibold text-slate-500">Fdo. Jefe de Obra</span>
-                            <input type="text" id="firmaJefeObra" placeholder="Nombre / Firma" class="w-full text-xs text-center border-b border-slate-300 bg-transparent py-1">
-                        </div>
-                        <div class="border border-dashed border-slate-300 p-4 rounded-lg bg-slate-50 flex flex-col justify-between h-36">
-                            <span class="text-xs font-semibold text-slate-500">Fdo. Técnico de Obra</span>
-                            <input type="text" id="firmaTecnicoObra" placeholder="Nombre / Firma" class="w-full text-xs text-center border-b border-slate-300 bg-transparent py-1">
-                        </div>
-                    </div>
-                </div>
-
-            </section>
-
-            <!-- Botón de Exportación Inferior -->
-            <div class="flex justify-end pt-4">
-                <button type="button" onclick="exportarPdf()" class="bg-rose-700 hover:bg-rose-800 text-white font-bold text-sm px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 transition transform hover:-translate-y-0.5">
-                    📄 Exportar e Imprimir Informe PDF
-                </button>
-            </div>
-
-        </form>
-    </main>
-
-    <!-- Script de Funcionalidad -->
-    <script>
-        const instalacionesList = [
-            "Vestuarios", "Taquillas", "Comedor", "Aseos", "Orden y limpieza", "Botiquines"
-        ];
-
-        const documentalList = [
-            "Simulacro de Evacuación",
-            "Condiciones de Evacuación",
-            "Registro Diario / Preparación Física",
-            "Listín de Emergencias",
-            "Libro de Subcontratación"
-        ];
-
-        document.addEventListener('DOMContentLoaded', () => {
-            renderInstalaciones();
-            renderDocumental();
-            
-            addItem('mediosTrabajo', 'Instalaciones eléctricas');
-            addItem('mediosTrabajo', 'Soldaduras acetilénicas');
-            addItem('instalacionesAuxiliares', 'Escaleras');
-            addItem('instalacionesAuxiliares', 'Andamios');
-            addItem('maquinariaAuxiliar', 'Taladradoras');
-            addItem('maquinariaAuxiliar', 'Radiales');
-            addItem('pequenaMaquinaria', 'Motosierras');
-            addItem('pequenaMaquinaria', 'Hormigoneras');
-
-            addAccionSeguimiento("1");
-            addAccionSeguimiento("2");
-            addAccionSeguimiento("3");
-        });
-
-        function renderInstalaciones() {
-            const container = document.getElementById('gridInstalaciones');
-            container.innerHTML = '';
-            instalacionesList.forEach((nombre, index) => {
-                container.innerHTML += `
-                    <div class="p-3 bg-slate-50 rounded-md border border-slate-200 space-y-2">
-                        <label class="block text-xs font-semibold text-slate-700">${nombre}</label>
-                        <select id="inst_${index}" class="w-full text-sm border-slate-300 rounded-md border px-2.5 py-1.5 bg-white">
-                            <option value="SI">SI (Conforme)</option>
-                            <option value="NO">NO (No Conforme)</option>
-                            <option value="PENDIENTE">Pendiente</option>
-                            <option value="NA">N/A</option>
-                        </select>
-                        <input type="text" id="inst_obs_${index}" placeholder="Observaciones..." class="w-full text-xs border-slate-300 rounded-md border px-2.5 py-1.5">
-                        <div class="pt-1 flex items-center justify-between">
-                            <input type="file" id="inst_foto_${index}" accept="image/*" onchange="previewFotoItem(this, 'inst_preview_${index}')" class="hidden">
-                            <button type="button" onclick="document.getElementById('inst_foto_${index}').click()" class="text-xs bg-slate-200 hover:bg-slate-300 text-slate-700 px-2 py-1 rounded font-medium flex items-center gap-1">
-                                📷 Adjuntar foto
-                            </button>
-                            <div id="inst_preview_${index}" class="text-xs text-emerald-600 font-semibold"></div>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        function renderDocumental() {
-            const container = document.getElementById('gridDocumental');
-            container.innerHTML = '';
-            documentalList.forEach((nombre, index) => {
-                container.innerHTML += `
-                    <div class="p-3 bg-slate-50 rounded-md border border-slate-200 space-y-2">
-                        <label class="block text-xs font-semibold text-slate-700">${nombre}</label>
-                        <select id="doc_${index}" class="w-full text-sm border-slate-300 rounded-md border px-2.5 py-1.5 bg-white">
-                            <option value="SI">SI (Conforme)</option>
-                            <option value="NO">NO (No Conforme)</option>
-                            <option value="PENDIENTE">Pendiente</option>
-                            <option value="NA">N/A</option>
-                        </select>
-                        <input type="text" id="doc_obs_${index}" placeholder="Observaciones / Fecha / Nº..." class="w-full text-xs border-slate-300 rounded-md border px-2.5 py-1.5">
-                        <div class="pt-1 flex items-center justify-between">
-                            <input type="file" id="doc_foto_${index}" accept="image/*" onchange="previewFotoItem(this, 'doc_preview_${index}')" class="hidden">
-                            <button type="button" onclick="document.getElementById('doc_foto_${index}').click()" class="text-xs bg-slate-200 hover:bg-slate-300 text-slate-700 px-2 py-1 rounded font-medium flex items-center gap-1">
-                                📷 Adjuntar foto
-                            </button>
-                            <div id="doc_preview_${index}" class="text-xs text-emerald-600 font-semibold"></div>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        function addItem(containerId, defaultValue = '') {
-            const container = document.getElementById(`container-${containerId}`);
-            const id = Date.now() + Math.random();
-            const div = document.createElement('div');
-            div.className = 'flex items-center gap-2 bg-slate-50 p-2 rounded-md border border-slate-200';
-            div.id = `item_${id}`;
-            div.innerHTML = `
-                <input type="text" value="${defaultValue}" placeholder="Nombre del elemento..." class="flex-1 text-sm border-slate-300 rounded-md border px-3 py-1.5 item-nombre">
-                <select class="text-sm border-slate-300 rounded-md border px-2 py-1.5 bg-white item-estado">
-                    <option value="SI">SI (Conforme)</option>
-                    <option value="NO">NO (No Conforme)</option>
-                    <option value="PENDIENTE">Pendiente</option>
-                    <option value="NA">N/A</option>
-                </select>
-                <input type="file" accept="image/*" onchange="previewFotoItem(this, 'preview_${id}')" class="hidden" id="file_${id}">
-                <button type="button" onclick="document.getElementById('file_${id}').click()" class="text-xs bg-slate-200 hover:bg-slate-300 text-slate-700 px-2.5 py-1.5 rounded font-medium">📷 Foto</button>
-                <span id="preview_${id}" class="text-xs text-emerald-600 font-semibold"></span>
-                <button type="button" onclick="document.getElementById('item_${id}').remove()" class="text-rose-600 hover:text-rose-800 font-bold px-2 py-1 text-sm">🗑️</button>
-            `;
-            container.appendChild(div);
-        }
-
-        function addMaquinariaAutopropulsada() {
-            const container = document.getElementById('container-autopropulsada');
-            const id = Date.now();
-            const div = document.createElement('div');
-            div.className = 'p-4 bg-slate-50 rounded-lg border border-slate-300 relative space-y-3';
-            div.id = `maquina_${id}`;
-            div.innerHTML = `
-                <div class="flex justify-between items-center border-b pb-2">
-                    <span class="text-xs font-bold text-slate-700 uppercase">Ficha de Maquinaria Autopropulsada</span>
-                    <button type="button" onclick="document.getElementById('maquina_${id}').remove()" class="text-rose-600 hover:text-rose-800 text-xs font-bold">🗑️ Eliminar máquina</button>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Tipo / Modelo de Máquina</label>
-                        <input type="text" placeholder="Ej: Excavadora de cadenas" class="w-full text-xs border-slate-300 rounded border px-2.5 py-1.5 mq-tipo">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Matrícula / Nº Identificación</label>
-                        <input type="text" placeholder="Ej: E-4022" class="w-full text-xs border-slate-300 rounded border px-2.5 py-1.5 mq-matricula">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Estado de Conformidad</label>
-                        <select class="w-full text-xs border-slate-300 rounded border px-2.5 py-1.5 bg-white mq-estado">
-                            <option value="SI">SI (Conforme)</option>
-                            <option value="NO">NO (No Conforme)</option>
-                            <option value="PENDIENTE">Pendiente</option>
-                            <option value="NA">N/A</option>
-                        </select>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Observaciones / Revisiones (CE, ROPS, extintor, etc.)</label>
-                    <input type="text" placeholder="Notas sobre seguridad y mantenimiento..." class="w-full text-xs border-slate-300 rounded border px-2.5 py-1.5 mq-obs">
-                </div>
-            `;
-            container.appendChild(div);
-        }
-
-        function addAccionSeguimiento(num = '') {
-            const tbody = document.getElementById('tbodySeguimiento');
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td class="p-2 text-center font-bold">${num || tbody.children.length + 1}</td>
-                <td class="p-2"><input type="text" placeholder="Responsable..." class="w-full text-xs border-slate-300 rounded border px-2 py-1 seg-resp"></td>
-                <td class="p-2"><input type="text" placeholder="Plazo..." class="w-full text-xs border-slate-300 rounded border px-2 py-1 seg-plazo"></td>
-                <td class="p-2"><input type="text" placeholder="Fecha / Firma..." class="w-full text-xs border-slate-300 rounded border px-2 py-1 seg-cierre"></td>
-                <td class="p-2 text-center"><button type="button" onclick="this.closest('tr').remove()" class="text-rose-600 font-bold">×</button></td>
-            `;
-            tbody.appendChild(tr);
-        }
-
-        function previewFotoItem(input, previewId) {
-            const preview = document.getElementById(previewId);
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    preview.innerHTML = `✅ Foto adjunta`;
-                    preview.dataset.base64 = e.target.result;
-                }
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-
-        function capturarGps() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(position => {
-                    const lat = position.coords.latitude.toFixed(6);
-                    const lon = position.coords.longitude.toFixed(6);
-                    document.getElementById('ubicacionGps').value = `Lat: ${lat}, Lon: ${lon}`;
-                }, () => {
-                    alert('No se pudo obtener la ubicación GPS.');
-                });
-            } else {
-                alert('La geolocalización no está soportada en este navegador.');
-            }
-        }
-
-        function guardarBorrador() {
-            const datos = {
-                codigoObra: document.getElementById('codigoObra').value,
-                nombreObra: document.getElementById('nombreObra').value,
-                tecnicoPrl: document.getElementById('tecnicoPrl').value,
-                jefeObra: document.getElementById('jefeObra').value,
-                objetoVisita: document.getElementById('objetoVisita').value,
-                ubicacionGps: document.getElementById('ubicacionGps').value,
-                asistentesObra: document.getElementById('asistentesObra').value,
-                deficienciasDetectadas: document.getElementById('deficienciasDetectadas').value,
-                medidasCorrectorasTexto: document.getElementById('medidasCorrectorasTexto').value
-            };
-            localStorage.setItem('obrareport_draft', JSON.stringify(datos));
-            alert('¡Borrador guardado correctamente en el navegador!');
-        }
-
-        function cargarBorrador() {
-            const guardado = localStorage.getItem('obrareport_draft');
-            if (guardado) {
-                const datos = JSON.parse(guardado);
-                document.getElementById('codigoObra').value = datos.codigoObra || '';
-                document.getElementById('nombreObra').value = datos.nombreObra || '';
-                document.getElementById('tecnicoPrl').value = datos.tecnicoPrl || '';
-                document.getElementById('jefeObra').value = datos.jefeObra || '';
-                document.getElementById('objetoVisita').value = datos.objetoVisita || '';
-                document.getElementById('ubicacionGps').value = datos.ubicacionGps || '';
-                document.getElementById('asistentesObra').value = datos.asistentesObra || '';
-                document.getElementById('deficienciasDetectadas').value = datos.deficienciasDetectadas || '';
-                document.getElementById('medidasCorrectorasTexto').value = datos.medidasCorrectorasTexto || '';
-                alert('¡Borrador cargado con éxito!');
-            } else {
-                alert('No se encontró ningún borrador guardado previamente.');
-            }
-        }
-
-        function nuevoFormulario() {
-            if (confirm('¿Desea limpiar el formulario actual y empezar uno nuevo?')) {
-                document.getElementById('obraForm').reset();
-                renderInstalaciones();
-                renderDocumental();
-                document.getElementById('container-mediosTrabajo').innerHTML = '';
-                document.getElementById('container-instalacionesAuxiliares').innerHTML = '';
-                document.getElementById('container-maquinariaAuxiliar').innerHTML = '';
-                document.getElementById('container-pequenaMaquinaria').innerHTML = '';
-                document.getElementById('container-autopropulsada').innerHTML = '';
-                document.getElementById('tbodySeguimiento').innerHTML = '';
-            }
-        }
-
-        function exportarPdf() {
-            window.print();
-        }
-    </script>
-function exportarPdf() {
-        window.print();
-    }
-</script>
-<style>
-  .seccion-fotos {
-    margin-top: 25px;
-    page-break-inside: avoid;
-  }
-  .fotos-titulo {
-    background-color: #15324b;
-    color: white;
-    padding: 6px 10px;
-    font-weight: bold;
-    font-size: 13px;
-    margin-bottom: 10px;
-  }
-  .grid-fotos {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr); /* 2 columnas para que aproveche bien el ancho */
-    gap: 15px;
-  }
-  .tarjeta-foto {
-    border: 1px solid #15324b;
-    padding: 10px;
-    background-color: #fff;
-    text-align: center;
-    page-break-inside: avoid;
-  }
-  .tarjeta-foto img {
-    width: 100%;
-    height: 180px;
-    object-fit: cover; /* Mantiene la proporción sin deformar la foto */
-    border: 1px solid #ddd;
-    margin-bottom: 8px;
-  }
-  .pie-foto {
-    font-size: 11px;
-    color: #15324b;
-    font-weight: bold;
-  }
-
-  /* Forzar la correcta impresión de colores e imágenes de fondo */
-  @media print {
-    body {
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-    }
-    .tarjeta-foto {
-      border: 1px solid #15324b !important;
-      break-inside: avoid;
-    }
-    .grid-fotos {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-<style>
-  .seccion-firmas {
-    margin-top: 25px;
-    page-break-inside: avoid;
-  }
-  .firmas-titulo {
-    background-color: #15324b;
-    color: white;
-    padding: 6px 10px;
-    font-weight: bold;
-    font-size: 13px;
-  }
-  .firmas-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    gap: 10px;
-    padding: 15px 10px;
-    border: 1px solid #15324b;
-    border-top: none; /* Se une visualmente con el título */
-    background-color: #fff;
-    page-break-inside: avoid;
-  }
-  .firma-box {
-    flex: 1; /* Distribuye el espacio en 3 partes iguales */
-    text-align: center;
-    padding: 5px;
-  }
-  .firma-box img {
-    max-height: 65px;
-    width: auto;
-    max-width: 100%;
-    object-fit: contain;
-    margin-bottom: 5px;
-  }
-  .firma-linea-sello {
-    /* Espacio reservado por si se firma físicamente o con canvas en blanco */
-    min-height: 45px; 
-    margin-bottom: 5px;
-  }
-  .firma-titulo {
-    font-size: 10px;
-    font-weight: bold;
-    color: #15324b;
-    border-top: 1px solid #15324b;
-    padding-top: 5px;
-    margin-top: 5px;
-    line-height: 1.2;
-  }
-  @media print {
-    body {
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-    }
-    .firmas-container, .firmas-titulo {
-      border-color: #15324b !important;
-    }
-  }
-</style>
-
-<div class="seccion-firmas">
-  <div class="firmas-titulo">
-    VISITA REALIZADA POR:
+  <!-- CABECERA -->
+  <div style="text-align: center; background-color: #15324b; color: white; padding: 10px; font-size: 16px; font-weight: bold;">
+    ACTUACIONES Y RESULTADOS
   </div>
-  
-  <div class="firmas-container">
-    <!-- Columna 1: Técnico PRL -->
-    <div class="firma-box">
-      <!-- Si hay imagen guardada se muestra, si no, deja hueco -->
-      <img src="ruta_firma_tecnico.png" alt="Firma Técnico PRL" />
-      <div class="firma-titulo">
-        Fdo.: Estévez<br>Técnico PRL (UTE 3)
-      </div>
-    </div>
 
-    <!-- Columna 2: Jefe de Obra -->
-    <div class="firma-box">
-      <img src="ruta_firma_jefe.png" alt="Firma Jefe de obra" />
-      <div class="firma-titulo">
-        Fdo.: Fernando Gutierrez Lera<br>Jefe de obra
-      </div>
+  <!-- ACTUACIONES DERIVADAS -->
+  <div class="seccion-titulo">ACTUACIONES DERIVADAS</div>
+  <div class="seccion-contenido">
+    <div class="fila-opcion">
+      <span>FORMULACIÓN DE REQUERIMIENTOS</span>
+      <div id="op-requerimientos"><span>SÍ [  ]</span> <span>NO [X]</span></div>
     </div>
+    <div class="fila-opcion">
+      <span>PROPUESTA DE MEDIDAS CORRECTORAS</span>
+      <div id="op-medidas"><span>SÍ [  ]</span> <span>NO [X]</span></div>
+    </div>
+    <div class="fila-opcion">
+      <span>PARALIZACIÓN DE ACTIVIDADES</span>
+      <div id="op-paralizacion"><span>SÍ [  ]</span> <span>NO [X]</span></div>
+    </div>
+  </div>
 
-    <!-- Columna 3: Técnico de Obra / Ayudante -->
-    <div class="firma-box">
-      <img src="ruta_firma_auxiliar.png" alt="Firma Técnico de obra" />
-      <div class="firma-titulo">
-        Fdo.: [Nombre Apellidos]<br>Técnico de obra
+  <!-- DEFICIENCIAS DETECTADAS -->
+  <div class="seccion-titulo">DEFICIENCIAS DETECTADAS</div>
+  <div class="seccion-contenido" id="txt-deficiencias" style="min-height: 60px;"></div>
+
+  <!-- MEDIDAS CORRECTORAS -->
+  <div class="seccion-titulo">MEDIDAS CORRECTORAS</div>
+  <div class="seccion-contenido" id="txt-medidas" style="min-height: 60px;"></div>
+
+  <!-- SEGUIMIENTO ACCIONES CORRECTORAS -->
+  <div class="seccion-titulo">SEGUIMIENTO ACCIONES CORRECTORAS</div>
+  <div class="seccion-contenido" style="padding: 0; border: none;">
+    <table class="tabla-seguimiento">
+      <thead>
+        <tr>
+          <th style="width: 20%;">Nº Medidas correctoras</th>
+          <th style="width: 40%;">Responsable de ejecución</th>
+          <th style="width: 20%;">Plazo ejecución</th>
+          <th style="width: 20%;">Fecha cierre / Firma</th>
+        </tr>
+      </thead>
+      <tbody id="tabla-seguimiento-body"></tbody>
+    </table>
+  </div>
+
+  <!-- REGISTRO FOTOGRÁFICO (Imprime fotos sin fallos) -->
+  <div class="seccion-fotos">
+    <div class="seccion-titulo" style="margin-top: 0;">REGISTRO FOTOGRÁFICO</div>
+    <div class="grid-fotos" id="contenedor-fotos">
+      <!-- Se inyectan las fotos dinámicamente o puedes ponerlas fijas -->
+      <div class="tarjeta-foto">
+        <img src="" alt="Foto 1" onerror="this.parentElement.style.display='none'" />
+        <div class="pie-foto">Foto 1: Detalle de deficiencia</div>
+      </div>
+      <div class="tarjeta-foto">
+        <img src="" alt="Foto 2" onerror="this.parentElement.style.display='none'" />
+        <div class="pie-foto">Foto 2: Medida correctora aplicada</div>
       </div>
     </div>
   </div>
+
+  <!-- ACTUACIONES PROPUESTAS -->
+  <div class="seccion-titulo">ACTUACIONES PROPUESTAS</div>
+  <div class="seccion-contenido">
+    <div class="fila-opcion">
+      <span>Nueva visita</span>
+      <div id="op-nuevavisita"><span>SÍ [  ]</span> <span>NO [X]</span></div>
+    </div>
+    <div class="fila-opcion">
+      <span>Verificación del cumplimiento</span>
+      <div id="op-verificacion"><span>SÍ [  ]</span> <span>NO [X]</span></div>
+    </div>
+  </div>
+
+  <!-- VISITA REALIZADA POR: 3 CUADROS HORIZONTALES PARA FIRMAS -->
+  <div class="seccion-firmas">
+    <div class="seccion-titulo" style="margin-top: 0;">VISITA REALIZADA POR:</div>
+    <div class="firmas-container">
+      
+      <!-- Firma 1 -->
+      <div class="firma-box">
+        <img id="img-firma-tecnico" src="" alt="Firma Técnico PRL" onerror="this.style.display='none'" />
+        <div class="firma-titulo">Fdo.: Estévez<br>Técnico PRL (UTE 3)</div>
+      </div>
+
+      <!-- Firma 2 -->
+      <div class="firma-box">
+        <img id="img-firma-jefe" src="" alt="Firma Jefe de Obra" onerror="this.style.display='none'" />
+        <div class="firma-titulo">Fdo.: Fernando Gutierrez Lera<br>Jefe de obra</div>
+      </div>
+
+      <!-- Firma 3 -->
+      <div class="firma-box">
+        <img id="img-firma-auxiliar" src="" alt="Firma Técnico de Obra" onerror="this.style.display='none'" />
+        <div class="firma-titulo">Fdo.: [Nombre Apellidos]<br>Técnico de obra</div>
+      </div>
+
+    </div>
+  </div>
+
 </div>
+
+</body>
+</html>
